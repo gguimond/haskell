@@ -131,5 +131,46 @@ sumOfSquareRoots xs = sum (allSquareRoots (filterPositives xs))
       | x > 0     = x : filterPositives xs
       | otherwise = filterPositives xs 
 m = sumOfSquareRoots [1,2,3,4,5]
-main = putStrLn(show(m))                           
+main19 = putStrLn(show(m))   
+
+allSquaresMap :: Num a => [a] -> [a]
+allSquaresMap xs = map square xs
+  where
+    square x = x * x
+main20 = putStrLn(show(allSquaresMap([1,2,3,4,5])))  
+
+addition a b = a + b
+addAll :: Num a => a -> [a] -> [a]
+addAll x xs = map (addition x) xs
+n = addAll 2 [1,2,3,4,5]
+main21 = putStrLn(show(n)) 
+
+average :: Float -> Float -> Float
+average a b = (a + b) / 2.0
+main22 = putStrLn(show(zipWith average [1, 2, 3] [4, 5, 6])) 
+
+extractDigitsMap :: String -> String
+extractDigitsMap strings = filter isDigit strings
+main24 = putStrLn(show(extractDigitsMap "4toto")) 
+
+allSquaresMapPointFree = map (\x -> x * x)
+main25 = putStrLn(show(allSquaresMapPointFree([1,2,3,4,5]))) 
+
+allEvenFoldr :: [Int] -> Bool
+allEvenFoldr = foldr (\x b -> even x && b) True
+main26 = putStrLn(show(allEvenFoldr([1,2,3])))
+
+stringToIntFoldl :: String -> Int
+stringToIntFoldl = foldl (\acc chr -> 10 * acc + digitToInt chr) 0
+main27 = putStrLn(show(stringToIntFoldl("123")))
+
+sumOfSquareRootsCombine :: (Ord a, Floating a) => [a] -> a
+sumOfSquareRootsCombine xs = sum (map sqrt (filter (> 0) xs))
+main28 = putStrLn(show(sumOfSquareRootsCombine([1,2,3])))
+
+sumOfSquareRootsInfix xs = sum $ map sqrt $ filter (> 0) xs
+main29 = putStrLn(show(sumOfSquareRootsInfix([1,2,3])))
+
+sumOfSquareRootsComposition = sum . map sqrt . filter (> 0) 
+main30 = putStrLn(show(sumOfSquareRootsComposition([1,2,3])))
 
