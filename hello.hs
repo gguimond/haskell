@@ -174,3 +174,69 @@ main29 = putStrLn(show(sumOfSquareRootsInfix([1,2,3])))
 sumOfSquareRootsComposition = sum . map sqrt . filter (> 0) 
 main30 = putStrLn(show(sumOfSquareRootsComposition([1,2,3])))
 
+type Point = (Float, Float)
+type Line  = (Point, Point)
+type LineStyle = String
+type FancyLine = (Point, Point, LineStyle)
+changeLineStyle :: FancyLine -> LineStyle -> FancyLine
+changeLineStyle (x, y, _) newStyle
+  | newStyle `elem` ["solid", "dashed", "dotted"] = (x, y, newStyle)
+  | otherwise 
+  = error $ "error in changeLineStyle: " ++ newStyle ++ " is not a valid style"
+main31 = putStrLn(show(changeLineStyle ((0,0),(0,0),"toto") "solid"))
+
+data LineStyle2
+  = Solid
+  | Dashed
+  | Dotted
+type FancyLine2 = (Point, Point, LineStyle2)
+myLine :: FancyLine2
+myLine = ((0, 0), (1, 1), Dashed)
+changeLineStyle2 :: FancyLine2 -> LineStyle2 -> FancyLine2
+changeLineStyle2 (x, y, _) newStyle = (x, y, newStyle)
+instance Show LineStyle2 where
+   show Solid = "SOLID"
+main32 = putStrLn(show(changeLineStyle2 ((0,0),(0,0),Dashed) Solid))
+
+data Day
+  = Sunday
+  | Monday
+  | Tuesday
+  | Wednesday
+  | Thursday
+  | Friday
+  | Saturday
+  deriving (Eq, Enum)
+instance Show Day where
+   show Sunday = "Sunday"
+   show Monday = "Monday"
+   show Tuesday = "Tuesday"
+   show Wednesday = "Wednesday"
+   show Thursday = "Thursday"
+   show Friday = "Friday"
+   show Saturday = "Saturday"
+main33 = putStrLn(show [Monday .. Friday] )
+
+isWeekday :: Day -> Bool
+isWeekday Sunday   = False
+isWeekday Saturday = False
+isWeekday _        = True
+
+isWeekday2 :: Day -> Bool
+isWeekday2 day = case day of
+                  Sunday   -> False
+                  Saturday -> False
+                  _        -> True
+
+isWeekday3 day = not $ day `elem` [Saturday, Sunday]
+main34 = putStrLn(show(isWeekday3 Saturday))
+
+data Point2 = Point2 Float Float
+           deriving (Show, Eq)
+
+zeroPoint :: Point2
+zeroPoint = Point2 0 0
+
+
+
+
