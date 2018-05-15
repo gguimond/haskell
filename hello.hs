@@ -237,6 +237,58 @@ data Point2 = Point2 Float Float
 zeroPoint :: Point2
 zeroPoint = Point2 0 0
 
+(!+!) :: [a] -> Int -> Maybe a
+[]      !+! _ = Nothing
+(x : _) !+! 0 = Just x
+(_ :xs) !+! n = (!+!) xs (n - 1)
+
+showFifthElement :: Show a => [a] -> String
+showFifthElement xs
+  = case xs !+! 4 of
+      Nothing ->  "there is no fifth element in this list"
+      Just n  ->  "the fifth element of the list is: " ++ show n
+main35 = putStrLn(show(showFifthElement [1,2,3,4,5]))
 
 
+
+isElementSorted :: Ord a  => a -> [a] -> Bool
+isElementSorted _ []     = False
+isElementSorted a (x:xs)
+  | a == x               = True
+  | a < x                = False
+  | otherwise            = isElementSorted a xs
+
+insertSorted :: (Eq a, Ord a)  => a -> [a] -> [a]
+insertSorted x []     = [x]
+insertSorted x (y:ys)
+  | x <= y            = x : y : ys
+  | otherwise         = y : insertSorted x ys
+
+isSorted :: Bool
+isSorted = isElementSorted 5 (insertSorted 5 [1,2,3,4,6])
+main36 = putStrLn(show (isElementSorted 5 (insertSorted 5 [1,2,3,4,6])))
+
+data BinaryTree a
+	= Node a (BinaryTree a) (BinaryTree a)
+	| Leaf
+	deriving(Show)
+main37 = putStrLn(show (Node 5 Leaf (Node 6 Leaf Leaf)))
+
+insertTree :: Ord a => a -> BinaryTree a -> BinaryTree a
+insertTree x Leaf
+  = Node x Leaf Leaf
+insertTree newValue (Node nodeValue leftSubtree rightSubtree)
+  | newValue < nodeValue = Node nodeValue (insertTree newValue leftSubtree) rightSubtree
+  | otherwise            = Node nodeValue leftSubtree (insertTree newValue rightSubtree)
+
+isElementTree :: Ord a => a -> BinaryTree a -> Bool
+isElementTree x Leaf = False
+isElementTree value (Node nodeValue leftSubtree rightSubtree)
+  | value == nodeValue  = True     
+  | value  <  nodeValue = isElementTree value leftSubtree 
+  | otherwise           = isElementTree value rightSubtree
+
+tree = Node 5 Leaf (Node 6 Leaf Leaf)
+main38 = putStrLn(show (insertTree 4 tree))
+main39 = putStrLn(show (isElementTree 5 (insertTree 4 tree)))
 
