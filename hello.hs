@@ -292,3 +292,106 @@ tree = Node 5 Leaf (Node 6 Leaf Leaf)
 main38 = putStrLn(show (insertTree 4 tree))
 main39 = putStrLn(show (isElementTree 5 (insertTree 4 tree)))
 
+data Token
+  = PlusTok
+  | TimesTok
+  | OpenP
+  | CloseP
+  | IntTok Int
+  deriving (Show)
+
+lexer :: String -> [Token]
+lexer []              = []
+lexer ('+' : restStr) = PlusTok  : lexer restStr
+lexer ('*' : restStr) = TimesTok : lexer restStr 
+lexer ('(' : restStr) = OpenP    : lexer restStr 
+lexer (')' : restStr) = CloseP   : lexer restStr
+lexer (chr : restStr) | isSpace chr = lexer restStr
+lexer str@(chr : _) 
+	| isDigit chr = IntTok (stringToInt digitStr) : lexer restStr
+  	where
+    	(digitStr, restStr) = break (not . isDigit) str
+lexer (chr : restString) 
+  = error ("lexer: unexpected character: '" ++ show chr ++ "'")
+
+main40 = putStrLn(show (lexer "2 + 7 * 13"))
+
+data Expr
+  = IntLit Int          -- integer constants, leaves of the expression tree
+  | Add    Expr Expr    -- addition node
+  | Mult   Expr Expr    -- multiplication node
+  deriving (Show)
+
+parseInt :: [Token] -> Maybe (Expr, [Token])
+parseInt (IntTok n : restTokens)
+  = Just (IntLit n, restTokens)
+parseInt tokens
+  = Nothing
+
+parseProdOrInt :: [Token] -> Maybe (Expr, [Token])
+parseProdOrInt tokens
+  = case parseInt tokens of
+      Just (expr1, (TimesTok : restTokens1)) -> 
+          case parseProdOrInt restTokens1 of
+            Just (expr2, restTokens2) -> Just (Mult expr1 expr2, restTokens2)
+            Nothing                   -> Nothing
+      result -> result     -- could be 'Nothing' or a valid expression
+
+main41 = putStrLn(show (parseProdOrInt(lexer "2 * 13 * 3 * 11")))
+
+parseSumOrProdOrInt :: [Token] -> Maybe (Expr, [Token])
+parseSumOrProdOrInt tokens
+  = case parseProdOrInt tokens of
+      Just (expr1, (PlusTok : restTokens1)) -> 
+          case parseSumOrProdOrInt restTokens1 of
+            Just (expr2, restTokens2) -> Just (Add expr1 expr2, restTokens2)
+            Nothing                   -> Nothing
+      result -> result    -- could be 'Nothing' or a valid expression
+
+main42 = putStrLn(show (parseSumOrProdOrInt(lexer "2 * 13 + 3 + 5")))
+
+parseIntOrParenExpr :: [Token] -> Maybe (Expr, [Token])
+parseIntOrParenExpr (IntTok n : restTokens)
+  = Just (IntLit n,   restTokens)
+parseIntOrParenExpr (OpenP : restTokens1)
+  = case parseSumOrProdOrIntOrParenExpr restTokens1 of
+       Just (expr, (CloseP : restTokens2)) -> Just (expr, restTokens2)
+       Just _  -> Nothing -- no closing paren
+       Nothing -> Nothing
+parseIntOrParenExpr tokens
+  = Nothing
+      
+parseProdOrIntOrParenExpr :: [Token] -> Maybe (Expr, [Token])
+parseProdOrIntOrParenExpr tokens
+  = case parseIntOrParenExpr tokens of
+      Just (expr1, (TimesTok : restTokens1)) -> 
+          case parseProdOrIntOrParenExpr restTokens1 of
+            Just (expr2, restTokens2) -> Just (Mult expr1 expr2, restTokens2)
+            Nothing                   -> Nothing
+      result -> result   
+              
+parseSumOrProdOrIntOrParenExpr :: [Token] -> Maybe (Expr, [Token])
+parseSumOrProdOrIntOrParenExpr tokens
+  = case parseProdOrIntOrParenExpr tokens of
+      Just (expr1, (PlusTok : restTokens1)) -> 
+          case parseSumOrProdOrIntOrParenExpr restTokens1 of
+            Just (expr2, restTokens2) -> Just (Add expr1 expr2, restTokens2)
+            Nothing                   -> Nothing
+      result -> result
+
+parse :: [Token] -> Expr
+parse tokens =
+  case parseSumOrProdOrIntOrParenExpr tokens of
+    Just (expr, []) -> expr    
+    _               -> error "Could not parse input"
+
+main43 = putStrLn(show (parse(lexer "3 + (2 * 13) + (3 + 5)")))
+
+eval :: Expr -> Int
+eval (IntLit n) = n
+eval (Add expr1 expr2)
+  = eval expr1 + eval expr2
+eval (Mult expr1 expr2)
+  = eval expr1 * eval expr2  
+
+main = putStrLn(show (eval(parse(lexer "3 + (2 * 13) + (3 + 5)"))))
